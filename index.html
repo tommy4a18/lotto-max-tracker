@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lotto Max Past Winning Numbers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+    
+    <!-- 頂部導航與語言切換 -->
+    <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-10 shadow-lg">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <span class="bg-amber-500 text-slate-950 font-black px-2.5 py-1 rounded text-sm">MAX</span>
+                <h1 id="txt-title" class="text-lg font-bold text-slate-100">Lotto Max Past Winning Numbers</h1>
+            </div>
+            <select id="langSelect" onchange="switchLanguage(this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-amber-500">
+                <option value="en" selected>English</option>
+                <option value="fr">Français</option>
+                <option value="zh-HK">繁體中文</option>
+                <option value="zh-CN">简体中文</option>
+            </select>
+        </div>
+    </header>
+
+    <!-- 主要內容 -->
+    <main class="max-w-4xl mx-auto p-4 mt-6">
+        <p id="txt-subtitle" class="text-slate-400 text-xs sm:text-sm mb-6">Complete archive sorted by draw date (latest draws first). Automatically updated every Tuesday & Friday night.</p>
+        
+        <div class="bg-slate-900 rounded-2xl shadow-xl border border-slate-800 overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-800/60 text-slate-400 text-xs uppercase tracking-wider">
+                    <tr>
+                        <th id="th-date" class="p-4">Draw Date</th>
+                        <th id="th-numbers" class="p-4">Winning Numbers (7)</th>
+                        <th id="th-bonus" class="p-4">Bonus</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table-body" class="divide-y divide-slate-800/60 text-sm">
+                    <!-- 動態載入 -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        const i18n = {
+            'en': {
+                title: 'Lotto Max Past Winning Numbers',
+                subtitle: 'Complete archive sorted by draw date (latest draws first). Automatically updated every Tuesday & Friday night.',
+                thDate: 'Draw Date',
+                thNumbers: 'Winning Numbers (7)',
+                thBonus: 'Bonus'
+            },
+            'fr': {
+                title: 'Historique des numéros gagnants du Lotto Max',
+                subtitle: 'Archive complète classée par date (tirages récents en premier). Mis à jour automatiquement mardi et vendredi soir.',
+                thDate: 'Date du tirage',
+                thNumbers: 'Numéros gagnants (7)',
+                thBonus: 'Numéro complémentaire'
+            },
+            'zh-HK': {
+                title: 'Lotto Max 歷史開彩號碼紀錄',
+                subtitle: '完整歷史存檔按開彩日期排列（最新在最前）。逢星期二及星期五夜晚自動更新。',
+                thDate: '開彩日期',
+                thNumbers: '中獎號碼 (7個)',
+                thBonus: '特別號碼'
+            },
+            'zh-CN': {
+                title: 'Lotto Max 历史开彩号码纪录',
+                subtitle: '完整历史存档按开彩日期排列（最新在最前）。逢星期二及星期五夜晚自动更新。',
+                thDate: '开彩日期',
+                thNumbers: '中奖号码 (7个)',
+                thBonus: '特别号码'
+            }
+        };
+
+        function switchLanguage(lang) {
+            const dict = i18n[lang];
+            document.getElementById('txt-title').innerText = dict.title;
+            document.getElementById('txt-subtitle').innerText = dict.subtitle;
+            document.getElementById('th-date').innerText = dict.thDate;
+            document.getElementById('th-numbers').innerText = dict.thNumbers;
+            document.getElementById('th-bonus').innerText = dict.thBonus;
+        }
+
+        // 自動從同目錄讀取 lottomax_history.json
+        async function loadData() {
+            try {
+                const response = await fetch('lottomax_history.json');
+                const data = await response.json();
+                renderTable(data);
+            } catch (error) {
+                console.error('Error loading history data:', error);
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('data-table-body');
+            tbody.innerHTML = '';
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/40 transition';
+                tr.innerHTML = `
+                    <td class="p-4 font-mono font-medium text-slate-300">${item.date}</td>
+                    <td class="p-4">
+                        <div class="flex gap-2 flex-wrap">
+                            ${item.numbers.map(n => `<span class="w-8 h-8 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-full flex items-center justify-center font-bold text-xs shadow-sm">${n}</span>`).join('')}
+                        </div>
+                    </td>
+                    <td class="p-4">
+                        <span class="w-8 h-8 bg-slate-800 text-slate-300 border border-slate-700 rounded-full flex items-center justify-center font-bold text-xs">${item.bonus}</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
